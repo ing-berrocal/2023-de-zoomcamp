@@ -1,4 +1,4 @@
- #!/usr/bin/env python
+
 
 import os
 import pandas as pd
@@ -21,11 +21,11 @@ def main(params):
 
     csv_name = 'output.csv'  
 
-    os.system(f'wget {url} -O {csv_name}')
+    #os.system(f'wget {url} -O {csv_name}')
 
     engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{db}')
 
-    df_iterator = pd.read_csv(csv_name,iterator=True,chunksize=100000)
+    df_iterator = pd.read_csv(url,iterator=True,chunksize=100000)
 
     df = next(df_iterator)
 
@@ -45,7 +45,7 @@ def main(params):
         df['tpep_pickup_datetime'] = pd.to_datetime(df.tpep_pickup_datetime)
         df['tpep_dropoff_datetime'] = pd.to_datetime(df.tpep_dropoff_datetime)
 
-        df.to_sql(name='yellow_taxi_data',con=engine,if_exists='append')
+        df.to_sql(name=table_name,con=engine,if_exists='append')
 
         t_end = time()
         
