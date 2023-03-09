@@ -98,6 +98,7 @@ def insert_for(csv_name,engine):
 @flow(name="Ingest Flow")
 def fn_flow():
 
+  https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2019-01.csv.gz
   url = 'https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_2021-01.parquet'
   file_csv = download_file(url)
 

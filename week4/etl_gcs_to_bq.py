@@ -60,17 +60,17 @@ def write_bq(df: pd.DataFrame) -> None :
 
 
 @flow()
-def etl_gcs_to_bq(months : list(1,2)):
+def etl_gcs_to_bq():
     """Main ETL flow to load data into BigQuery"""
     color="yellow"
     year=2021
     month=1
 
-    for month in months:
-        
-        path = extract_from_gcs(color, year, month)
-        df = transform(path)
-        write_bq(df)
+    path = extract_from_gcs(color, year, month)
+
+    df = transform(path)
+
+    write_bq(df)
 
 if __name__=='__main__':
     etl_gcs_to_bq()        

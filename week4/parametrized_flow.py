@@ -8,7 +8,7 @@ from prefect_gcp import GcpCredentials
 #wget https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2019-01.csv.gz
 
 @task(log_prints=True)
-def extract_from_gcs(color: str, year: str, month: str):
+def p(color: str, year: str, month: str):
     """Download trip data from GCP"""
     gcp_cloud_storage_bucket_block = GcsBucket.load("blockdezoom")
 
@@ -17,7 +17,38 @@ def extract_from_gcs(color: str, year: str, month: str):
 
     gcp_cloud_storage_bucket_block.get_directory(from_path=gcs_path, local_path=f"./data/")
     
-    return Path(f"./data/{gcs_path}")
+    return (f"./data/{gcs_path}")
+
+@task(log_prints=True)
+def process_yellow(csv_name,engine):
+
+    table_name  = 'yellow_taxi_trip'
+    
+    df_iterator = pd.read_csv(csv_name,iterator=True,chunksize=100000)
+
+    df = next(df_iterator)
+
+    df['tpep_pickup_datetime'] = pd.to_datetime(df.tpep_pickup_datetime)
+    df['tpep_dropoff_datetime'] = pd.to_datetime(df.tpep_dropoff_datetime)
+
+    df.head(0).to_sql(name=table_name,con=engine,if_exists='replace')
+
+    df.to_sql(name=table_name,con=engine,if_exists='append')
+
+    i = 0
+    while True:
+        i += 1
+        t_start = time()
+
+        df = next(df_iterator)
+        df['tpep_pickup_datetime'] = pd.to_datetime(df.tpep_pickup_datetime)
+        df['tpep_dropoff_datetime'] = pd.to_datetime(df.tpep_dropoff_datetime)
+
+        df.to_sql(name=table_name,con=engine,if_exists='append')
+
+        t_end = time()
+        
+        print('Insert {}, time {}'.format(i,(t_end - t_start)))
 
 @task(retries=3)
 def fetch(url : str) -> pd.DataFrame:
@@ -62,6 +93,19 @@ def write_bq(df: pd.DataFrame) -> None :
 @flow()
 def etl_gcs_to_bq(months : list(1,2)):
     """Main ETL flow to load data into BigQuery"""
+
+    color="yellow"
+    # https://github.com/DataTalksClub/nyc-tlc-data/releases/download/yellow/yellow_tripdata_2019-01.csv.gz
+    for year in [2019,2020]:
+     
+        for month in range(1,13):
+            
+            path = extract_from_gcs(color, year, month)
+
+        file_name = f'{color}_tripdata_{year}-{month:02}.csv.gz'      
+        url_tmp = f'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{file_name}'    
+        #path_file = download_file(url_tmp,color,file_name)
+
     color="yellow"
     year=2021
     month=1

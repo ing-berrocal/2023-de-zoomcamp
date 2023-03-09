@@ -12,7 +12,7 @@ OPTIONS (
   uris = ['gs://etl-de-zoom-dbn/homework/fhv_tripdata_2019-*.csv.gz']
 );
 
---Numero de registros, 43,244,696
+--Numero de registros, 43,244,p
 SELECT count(*) FROM `dtc-de-zoom.week_3.external_trip_data` LIMIT 10;
 
 --

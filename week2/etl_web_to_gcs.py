@@ -56,9 +56,6 @@ def clean(df = pd.DataFrame) -> pd.DataFrame:
 @task(retries=3)
 def fetch(url : str) -> pd.DataFrame:
     """Read taxi data from web into pandas Dataframe"""
-
-    if randint(0,1) > 0:
-        raise Exception
     
     df = pd.read_csv(url)
 
@@ -66,8 +63,8 @@ def fetch(url : str) -> pd.DataFrame:
 
 if __name__ == '__main__':
     
-    color = "green"
-    year = 2020
+    color = "yellow"
+    year = 2019
     month = 1
 
     etl_web_to_gcs(color, year, month)    
